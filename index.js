@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const ObjectId = require('mongodb').ObjectId;
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -24,27 +25,36 @@ const client = new MongoClient(uri, {
 });
 
 
-
+ 
 async function run() {
   try {
     await client.connect();
     const userCollection = client.db('admin-db').collection('users');
 
     console.log("db connected")
-
+//get
 app.get('/users', async (req, res)=>{
   const query = {};
   const cursor =userCollection.find(query);
   const users = await cursor.toArray();
   res.send(users)
 })
-
+//post
 app.post('/users', async (req, res)=>{
         const newUser = req.body;
         const result = await userCollection.insertOne(newUser);
         console.log('adding new user', newUser);
         res.send(result)
 });
+//delete
+app.delete('/users/:id', async(req, res)=>{
+const id = req.params.id;
+const query ={_id: ObjectId};
+const result = await userCollection.deleteOne(query);
+res.send(result);
+
+ 
+})
    
 } finally {
     
